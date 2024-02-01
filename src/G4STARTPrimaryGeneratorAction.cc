@@ -66,7 +66,7 @@ void G4STARTPrimaryGeneratorAction:: GeneratePrimaries(G4Event* e){
     std::ofstream outFile("particle_position_diamond.txt", std::ios::app);
     outFile << x/cm <<" "<< y/cm << "\n";
     outFile.close();
-    particleGun->SetParticlePosition(G4ThreeVector(x,y,-0.3*mm));
+    particleGun->SetParticlePosition(G4ThreeVector(x,y,-0.3*cm));
     //发射粒子
     particleGun->GeneratePrimaryVertex(e);
 }

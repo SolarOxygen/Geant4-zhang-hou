@@ -18,6 +18,8 @@
 #include "G4EqMagElectricField.hh"
 #include "G4UniformElectricField.hh"
 //#include "G4DormandPrince745.hh"
+#include "G4VisAttributes.hh"
+#include "G4Colour.hh"
 
 #include "G4SDManager.hh"
 #include "G4PSEnergyDeposit.hh"
@@ -82,6 +84,8 @@ void G4STARTDetectorConstruction::DefineMaterials() {
     diamond->AddElement(nist->FindOrBuildElement("C"), 1);
 
     fW = nist->FindOrBuildMaterial("G4_W");
+    fAl = nist->FindOrBuildMaterial("G4_Al");
+    fSi = nist->FindOrBuildMaterial("G4_Si");
 
     //delete nist;
 }
@@ -104,7 +108,7 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
     G4Box* solid_world = new G4Box("world",                 //实体名称
                                     0.6*cm,                  //x轴长度
                                     0.6*cm,                  //y轴
-                                    0.3*mm                   //z轴
+                                    0.3*cm                   //z轴
                                    );
     //创建world逻辑体
     G4LogicalVolume* logic_world = new G4LogicalVolume(solid_world,                             //待填充的几何体
@@ -120,13 +124,7 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
                                                  false,                     //是否布尔运算
                                                  0                          //编号
                                                  );
-    /*G4double phi = 15*deg;
-    // u, v, w are the daughter axes, projected on the mother frame
-    G4ThreeVector u = G4ThreeVector(std::cos(phi), std::sin(phi), 0);
-    G4ThreeVector v = G4ThreeVector(-std::sin(phi), std::cos(phi),0);
-    G4ThreeVector w = G4ThreeVector( 0, 0, 1);
-    G4RotationMatrix rotm1  = G4RotationMatrix(u, v, w);*/
-    //G4RotationMatrix* rotm1Inv = new G4RotationMatrix(rotm1.inverse());
+
     //创建G4的靶材料
     //创建靶材料几何体
     G4Box* solid_target = new G4Box("target",                 //实体名称
@@ -136,19 +134,13 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
                                     );
     //创建靶材料逻辑体
     G4LogicalVolume* logic_target = new G4LogicalVolume(solid_target,                             //待填充的几何体
-                                                       diamond,    //填充材料
+                                                       fSi,    //填充材料
                                                        "target"                                //逻辑体名称
                                                         );
-    /*G4ThreeVector u = G4ThreeVector(0.0,0.0,2000.0*volt/cm);
-    G4ElectricField* electricField = new G4UniformElectricField(u);
-    G4FieldManager* fieldManager = G4TransportationManager::GetTransportationManager()->GetFieldManager();
-    fieldManager->SetDetectorField(electricField);
-    logic_target->SetFieldManager(fieldManager,true);
-    delete electricField;
-    delete fieldManager;*/
+
     //创建靶材料物理实体
     G4PVPlacement* phy_target = new G4PVPlacement(0,                         //旋转
-                                                 G4ThreeVector(0,0,0),      //坐标位置
+                                                 G4ThreeVector(0,0,2*mm),      //坐标位置
                                                  logic_target,               //待摆放的逻辑体
                                                  "target",                   //物理实体名称
                                                  logic_world,                         //母体
@@ -156,25 +148,25 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
                                                  1                          //编号
                                                  );
            //shape 3
-    /*G4Box* solid_detect = new G4Box("target2",                 //实体名称
+    G4Box* solid_detect = new G4Box("target2",                 //实体名称
                                       0.5*cm,                   //X轴半
                                       0.5*cm,                     //Y轴半长度
-                                      0.25*cm                  //Z轴
+                                      0.25*mm                  //Z轴
     );
     //创建W靶材料逻辑体
     G4LogicalVolume* logic_detect = new G4LogicalVolume(solid_detect,                             //待填充的几何体
-                                                        fW,    //填充材料
+                                                        fAl,    //填充材料
                                                         "target2"                                //逻辑体名称
     );
     //创建靶材料物理实体
     G4PVPlacement* phy_detect = new G4PVPlacement(0,                         //旋转
-                                                  G4ThreeVector(0,0,-0.25*cm),      //坐标位置
+                                                  G4ThreeVector(0,0,-2*mm),      //坐标位置
                                                   logic_detect,               //待摆放的逻辑体
                                                   "target2",                   //物理实体名称
                                                   logic_world,                         //母体
                                                   false,                     //是否布尔运算
                                                   1                          //编号
-    );*/
+    );
 
     G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
 
@@ -186,13 +178,14 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
     cryst->RegisterPrimitive(primitiv1);
     logic_target->SetSensitiveDetector(cryst);
 
-
-    G4UniformElectricField(G4ThreeVector(0., 0., 0.));
+    auto visAttributes = new G4VisAttributes(G4Colour(0,1.0,0));
+    logic_detect->SetVisAttributes(visAttributes);
+    auto visAttributes2 = new G4VisAttributes(G4Colour(1.0,0,0));
+    logic_target->SetVisAttributes(visAttributes2);
+    /*G4UniformElectricField(G4ThreeVector(0., 0., 0.));
     G4ElectricField* pEMfield;
     pEMfield = new G4UniformElectricField(
             G4ThreeVector(0.,0.,200000*volt/m));
-    //G4EqMagElectricField* pEquation;
-    //pEquation = new G4EqMagElectricField(pEMfield);
     G4FieldManager* fieldManager= G4TransportationManager::GetTransportationManager()->
             GetFieldManager();
 // Set this field to the global field manager
@@ -200,7 +193,7 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
     G4MagneticField *magField;
     magField = new G4UniformMagField(G4ThreeVector(0.,3.0*kilogauss,0.));
     fieldManager->SetDetectorField( magField );
-    fieldManager->CreateChordFinder( magField );
+    fieldManager->CreateChordFinder( magField );*/
 
     return phy_world;
 }
