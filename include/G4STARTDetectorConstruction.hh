@@ -25,6 +25,8 @@ protected:
     //G4MaterialPropertiesTable* diamondMPT;
     //G4Material* fPb;
     G4Material* fW;
+    G4Material* fSi;
+    G4Material* fAl;
 
 private:
     G4Cache<G4STARTElectricFieldSetup*> fEmFieldSetup;
