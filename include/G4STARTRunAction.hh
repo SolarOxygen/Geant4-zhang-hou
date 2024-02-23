@@ -22,4 +22,4 @@ private:
     G4STARTSteppingAction* steppingAction;
 };
 
-#endif //G4START_G4STARTRUNACTION_HH
+#endif

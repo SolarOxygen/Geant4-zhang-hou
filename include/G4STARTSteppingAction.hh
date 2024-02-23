@@ -27,4 +27,4 @@ private:
     G4int electronHolePairs;
 };
 
-#endif //G4START_G4STARTSTEPPINGACTION_HH
+#endif

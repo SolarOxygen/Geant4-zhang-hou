@@ -45,4 +45,4 @@ inline void G4STARTEventAction::AddGap(G4double de, G4double dl) {
     fEnergyGap += de;
     fTrackLGap += dl;
 }*/
-#endif //G4START_G4STARTEVENTACTION_HH
+#endif

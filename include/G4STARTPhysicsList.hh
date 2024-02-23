@@ -14,4 +14,4 @@ public:
 
     void SetCuts() override ;
 };
-#endif //G4START_G4STARTPHYSICSLISTS_HH
+#endif

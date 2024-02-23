@@ -18,7 +18,7 @@ public:
 
     G4VPhysicalVolume* Construct() override;
     void DefineMaterials();
-    virtual void ConstructSDandField();
+    virtual void ConstructSDandField() override;
     //void SetMaxStep (G4double );
 protected:
     G4Material* diamond;
