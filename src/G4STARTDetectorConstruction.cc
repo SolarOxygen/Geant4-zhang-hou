@@ -1,6 +1,7 @@
 //内置头文件
 #include "G4Tubs.hh"
 #include "G4Box.hh"
+#include "G4Cons.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4LogicalVolume.hh"
 #include "G4NistManager.hh"
@@ -20,6 +21,7 @@
 //#include "G4DormandPrince745.hh"
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
+
 
 #include "G4SDManager.hh"
 #include "G4PSEnergyDeposit.hh"
@@ -106,10 +108,11 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
         vacuumMaterial = new G4Material(name, density, 0, kStateGas, temperature, pressure);
     }
     G4Box* solid_world = new G4Box("world",                 //实体名称
-                                    0.6*cm,                  //x轴长度
-                                    0.6*cm,                  //y轴
-                                    0.3*cm                   //z轴
+                                    5*cm,                  //x轴长度
+                                    5*cm,                  //y轴
+                                    550*mm                   //z轴
                                    );
+
     //创建world逻辑体
     G4LogicalVolume* logic_world = new G4LogicalVolume(solid_world,                             //待填充的几何体
                                                         vacuumMaterial,    //填充材料
@@ -127,47 +130,94 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
 
     //创建G4的靶材料
     //创建靶材料几何体
-    G4Box* solid_target = new G4Box("target",                 //实体名称
-                                   0.5*cm,                      //x轴半长度
-                                   0.5*cm,                     //y轴半长度
-                                   0.25*mm                  //z轴
-                                    );
+
+    G4Tubs* tub_one = new G4Tubs("Tub_one",
+                                 10*mm,
+                                 12*mm,
+                                 42.5*mm,
+                                 0.*deg,
+                                 360.*deg);
     //创建靶材料逻辑体
-    G4LogicalVolume* logic_target = new G4LogicalVolume(solid_target,                             //待填充的几何体
+    G4LogicalVolume* logic_tub_one = new G4LogicalVolume(tub_one,                             //待填充的几何体
                                                        fSi,    //填充材料
-                                                       "target"                                //逻辑体名称
+                                                       "Tub_one"                                //逻辑体名称
                                                         );
 
     //创建靶材料物理实体
-    G4PVPlacement* phy_target = new G4PVPlacement(0,                         //旋转
-                                                 G4ThreeVector(0,0,2*mm),      //坐标位置
-                                                 logic_target,               //待摆放的逻辑体
-                                                 "target",                   //物理实体名称
+    G4PVPlacement* phy_tub_one = new G4PVPlacement(0,                         //旋转
+                                                 G4ThreeVector(0,0,-507.5*mm),      //坐标位置
+                                                  logic_tub_one,               //待摆放的逻辑体
+                                                 "Tub_one",                   //物理实体名称
                                                  logic_world,                         //母体
                                                  false,                     //是否布尔运算
                                                  1                          //编号
                                                  );
            //shape 3
-    G4Box* solid_detect = new G4Box("target2",                 //实体名称
-                                      0.5*cm,                   //X轴半
-                                      0.5*cm,                     //Y轴半长度
-                                      0.25*mm                  //Z轴
-    );
+
+    G4Tubs* tub_two = new G4Tubs("Tub_two",
+                                 10*mm,
+                                 12*mm,
+                                 47.5*mm,
+                                 0.*deg,
+                                 360.*deg
+                                 );
+
     //创建W靶材料逻辑体
-    G4LogicalVolume* logic_detect = new G4LogicalVolume(solid_detect,                             //待填充的几何体
+    G4LogicalVolume* logic_tub_two = new G4LogicalVolume(tub_two,                             //待填充的几何体
                                                         fAl,    //填充材料
-                                                        "target2"                                //逻辑体名称
+                                                        "Tub_two"                                //逻辑体名称
     );
     //创建靶材料物理实体
-    G4PVPlacement* phy_detect = new G4PVPlacement(0,                         //旋转
-                                                  G4ThreeVector(0,0,-2*mm),      //坐标位置
-                                                  logic_detect,               //待摆放的逻辑体
-                                                  "target2",                   //物理实体名称
+    G4PVPlacement* phy_tub_two = new G4PVPlacement(0,                         //旋转
+                                                  G4ThreeVector(0,0,-417.5*mm),      //坐标位置
+                                                  logic_tub_two,               //待摆放的逻辑体
+                                                  "Tub_two",                   //物理实体名称
                                                   logic_world,                         //母体
                                                   false,                     //是否布尔运算
                                                   1                          //编号
     );
-
+    G4Cons* cons_one = new G4Cons("Cons_one",
+                                  10*mm,
+                                  12*mm,
+                                  17.5*mm,
+                                  19.5*mm,
+                                  237.5*mm,
+                                  0.*deg,
+                                  360.*deg
+                                  );
+    G4LogicalVolume* logic_cons_one = new G4LogicalVolume(cons_one,                             //待填充的几何体
+                                                         fAl,    //填充材料
+                                                         "Cons_one"                                //逻辑体名称
+    );
+    G4PVPlacement* phy_cons_one = new G4PVPlacement(0,                         //旋转
+                                                   G4ThreeVector(0,0,-132.5*mm),      //坐标位置
+                                                   logic_cons_one,               //待摆放的逻辑体
+                                                   "Cons_one",                   //物理实体名称
+                                                   logic_world,                         //母体
+                                                   false,                     //是否布尔运算
+                                                   1                          //编号
+    );
+    G4Cons* cons_two = new G4Cons("Cons_two",
+                                  0.1*mm,
+                                  0.2*mm,
+                                  10*mm,
+                                  12*mm,
+                                  237.5*mm,
+                                  0.*deg,
+                                  360.*deg
+    );
+    G4LogicalVolume* logic_cons_two = new G4LogicalVolume(cons_two,                             //待填充的几何体
+                                                          fAl,    //填充材料
+                                                          "Cons_two"                                //逻辑体名称
+    );
+    G4PVPlacement* phy_cons_two = new G4PVPlacement(0,                         //旋转
+                                                    G4ThreeVector(0,0,-132.5*mm),      //坐标位置
+                                                    logic_cons_two,               //待摆放的逻辑体
+                                                    "Cons_two",                   //物理实体名称
+                                                    logic_world,                         //母体
+                                                    false,                     //是否布尔运算
+                                                    1                          //编号
+    );
     G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
 
     // declare crystal as a MultiFunctionalDetector scorer
@@ -176,12 +226,16 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
     G4SDManager::GetSDMpointer()->AddNewDetector(cryst);
     G4VPrimitiveScorer* primitiv1 = new G4PSEnergyDeposit("edep");
     cryst->RegisterPrimitive(primitiv1);
-    logic_target->SetSensitiveDetector(cryst);
+    logic_tub_one->SetSensitiveDetector(cryst);
 
     auto visAttributes = new G4VisAttributes(G4Colour(0,1.0,0));
-    logic_detect->SetVisAttributes(visAttributes);
+    logic_tub_two->SetVisAttributes(visAttributes);
     auto visAttributes2 = new G4VisAttributes(G4Colour(1.0,0,0));
-    logic_target->SetVisAttributes(visAttributes2);
+    logic_tub_one->SetVisAttributes(visAttributes2);
+    auto visAttributes3 = new G4VisAttributes(G4Colour(0,0,1.0));
+    logic_cons_one->SetVisAttributes(visAttributes3);
+    auto visAttributes4 = new G4VisAttributes(G4Colour(1.0,1.0,0));
+    logic_cons_two->SetVisAttributes(visAttributes4);
     /*G4UniformElectricField(G4ThreeVector(0., 0., 0.));
     G4ElectricField* pEMfield;
     pEMfield = new G4UniformElectricField(
