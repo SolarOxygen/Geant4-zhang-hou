@@ -38,13 +38,6 @@ G4STARTPrimaryGeneratorAction::G4STARTPrimaryGeneratorAction(){
     particleGun->SetParticleEnergy(1000.0*MeV);
     //particleGun1->SetParticleEnergy(1*eV);
 
-    //设置粒子源位置
-    /*G4double radius = 0.1*m;
-    G4double theta = (G4UniformRand()-0.5) * 2.0 * pi;
-    G4double x = radius * std::cos(theta);
-    G4double y = radius * std::sin(theta);
-    particleGun->SetParticlePosition(G4ThreeVector(x,y,-45*cm));
-    //particleGun->SetParticlePosition(G4ThreeVector(0,0,-45*cm));*/
     //设置粒子打出方向;
     particleGun->SetParticleMomentumDirection(G4ThreeVector(0,0,1));
 
@@ -58,15 +51,7 @@ G4STARTPrimaryGeneratorAction::~G4STARTPrimaryGeneratorAction(){
 
 //事件生成函数
 void G4STARTPrimaryGeneratorAction:: GeneratePrimaries(G4Event* e){
-
-    G4double radius = 0.5*cm;
-    //G4double theta = (G4UniformRand()-0.5) * 2.0 * pi;
-    x = radius * (G4UniformRand()-0.5)*2;
-    y = radius * (G4UniformRand()-0.5)*2;
-    std::ofstream outFile("particle_position_diamond.txt", std::ios::app);
-    outFile << x/cm <<" "<< y/cm << "\n";
-    outFile.close();
-    particleGun->SetParticlePosition(G4ThreeVector(x,y,-0.3*cm));
+    particleGun->SetParticlePosition(G4ThreeVector(0,0,-550*2*mm  ));
     //发射粒子
     particleGun->GeneratePrimaryVertex(e);
 }
