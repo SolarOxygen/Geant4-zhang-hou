@@ -27,6 +27,7 @@ protected:
     G4Material* fW;
     G4Material* fSi;
     G4Material* fAl;
+    G4Material* fBe;
 
 private:
     G4Cache<G4STARTElectricFieldSetup*> fEmFieldSetup;
