@@ -97,8 +97,8 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
         vacuumMaterial = new G4Material(name, density, 0, kStateGas, temperature, pressure);
     }
     G4Box* solid_world = new G4Box("world",                 //实体名称
-                                    5*cm,                  //x轴长度
-                                    5*cm,                  //y轴
+                                    10*cm,                  //x轴长度
+                                    10*cm,                  //y轴
                                     550*2*mm                   //z轴
                                    );
 
@@ -116,6 +116,7 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
                                                  false,                     //是否布尔运算
                                                  0                          //编号
                                                  );
+    ////////////////////////////////////////////////////////////////////
     G4RotationMatrix *IROTR = new G4RotationMatrix;
     IROTR->rotateX(89.10 * deg);
     IROTR->rotateY(0. * deg);
@@ -128,6 +129,7 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
     IROTL->rotateX(90.0 * deg);
     IROTL->rotateZ(90.0 * deg);
     IROTL->rotateY(-0.90 * deg);
+    //////////////////////////////////////////////////////////////////////////////
     for(int kz=1;kz>=-1;kz-=2) {
         //Be段柱管
         G4Tubs *tub_one = new G4Tubs("Tub_one",
@@ -168,8 +170,7 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
                                                            1                          //编号
         );
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Al段圆柱管道
-
+        //Al段圆柱管道
         G4Tubs *tub_two = new G4Tubs("Tub_two",
                                      10 * mm,
                                      10.5 * mm,
@@ -223,7 +224,6 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
                 rot = IROTR;
             }
             G4double phi = 90.*deg - kx*90.*deg;
-            ////////////////////////////////////////////////////////////////////////////////////////////
             G4Tubs *cons = new G4Tubs("Cons",
                                            10 * mm,
                                            11 * mm,
@@ -245,6 +245,72 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
             );
             auto visAttributes3 = new G4VisAttributes(G4Colour(0,0,1.0));
             logic_cons->SetVisAttributes(visAttributes3);
+        }
+        ////////////////////////////////////////////////////////////////////////////////////
+        //Si片
+        for(int ky = 1; ky>=-1;ky-=2) {
+            G4Box *disk_box = new G4Box("disk_box",
+                                        6 * mm,
+                                        29.5 * mm / 2,
+                                        3. * mm
+            );
+            G4LogicalVolume *logic_disk_box = new G4LogicalVolume(disk_box,                             //待填充的几何体
+                                                                 fSi,    //填充材料
+                                                                 "disk_box"                                //逻辑体名称
+            );
+
+            G4PVPlacement *phy_disk_box = new G4PVPlacement(0,                         //旋转
+                                                           G4ThreeVector(0, ky*25.75*mm, 560*mm*kz),      //坐标位置
+                                                           logic_disk_box,               //待摆放的逻辑体
+                                                           "disk_box",                   //物理实体名称
+                                                           logic_world,                         //母体
+                                                           false,                     //是否布尔运算
+                                                           1                          //编号
+            );
+            for(int kx = 1;kx>=-1;kx-=2)
+            {
+                G4double phi ;
+                if(kx==1)
+                {
+                    phi = 0.*deg;
+                }
+                else
+                {
+                    phi = 90.*deg;
+                }
+                if(ky==-1)
+                {
+                    phi+=90.*deg;
+                    if(kx==1)
+                    {
+                        phi+=180.*deg;
+                    }
+                }
+                G4Tubs* disk_tub = new G4Tubs("disk_tub",
+                                              0*mm,
+                                              29.5*mm,
+                                              3.*mm,
+                                              phi,
+                                              90.*deg
+                        );
+                G4LogicalVolume *logic_disk_tub = new G4LogicalVolume(disk_tub,                             //待填充的几何体
+                                                                      fSi,    //填充材料
+                                                                      "disk_tub"                                //逻辑体名称
+                );
+
+                G4PVPlacement *phy_disk_tub = new G4PVPlacement(0,                         //旋转
+                                                                G4ThreeVector(kx*6*mm, ky*11*mm, 560*mm*kz),      //坐标位置
+                                                                logic_disk_tub,               //待摆放的逻辑体
+                                                                "disk_tub",                   //物理实体名称
+                                                                logic_world,                         //母体
+                                                                false,                     //是否布尔运算
+                                                                1                          //编号
+                );
+                auto visAttributes_disk = new G4VisAttributes(G4Colour(1.0,1.0,0));
+                logic_disk_tub->SetVisAttributes(visAttributes_disk);
+            }
+            auto visAttributes_disk1 = new G4VisAttributes(G4Colour(1.0,1.0,0));
+            logic_disk_box->SetVisAttributes(visAttributes_disk1);
         }
         auto visAttributes0 = new G4VisAttributes(G4Colour(0,1.0,0));
         logic_tub_two->SetVisAttributes(visAttributes0);

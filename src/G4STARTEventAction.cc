@@ -35,7 +35,7 @@ void G4STARTEventAction::EndOfEventAction(const G4Event *anEvent) {
           //  nSecCollectionID));
     if (edepHitsMap ) {
         // Open a text file for writing
-        std::ofstream outFile("particle_info_diamond.txt", std::ios::app);
+        std::ofstream outFile("particle_info_Si.txt", std::ios::app);
         // Write information for each hit
         int i=0;
         itr = edepHitsMap->GetMap()->begin();
@@ -69,8 +69,8 @@ void G4STARTEventAction::EndOfEventAction(const G4Event *anEvent) {
         int pa[3]={0,0,0};
         for (const auto& pair : counts) {
             std::string name = pair.first;
-            char filename[20];
-            std::sprintf(filename,"particle_in_W_%s.txt",name);
+            char filename[30];
+            std::sprintf(filename,"particle_in_Si_%s.txt",name.c_str());
             std::ofstream outFile(filename, std::ios::app);
             if(name=="W182"||name=="W183"||name=="W184"||name=="W186")
             {
@@ -100,24 +100,24 @@ void G4STARTEventAction::EndOfEventAction(const G4Event *anEvent) {
         }
         if (fEventCounter!=1 && k<3) {
             if(pa[0]==0) {
-                std::ofstream outFile("particle_in_W_gamma.txt", std::ios::app);
+                std::ofstream outFile("particle_in_Si_gamma.txt", std::ios::app);
                 outFile << 0 << " " << fEventCounter - 1 << "\n";
                 outFile.close();
             }
             if(pa[1]==0) {
-                std::ofstream outFile1("particle_in_W_e-.txt", std::ios::app);
+                std::ofstream outFile1("particle_in_Si_e-.txt", std::ios::app);
                 outFile1 << 0 << " " << fEventCounter - 1 << "\n";
                 outFile1.close();
             }
             if(pa[2]==0) {
-                std::ofstream outFile2("particle_in_W_e+.txt", std::ios::app);
+                std::ofstream outFile2("particle_in_Si_e+.txt", std::ios::app);
                 outFile2 << 0 << " " << fEventCounter - 1 << "\n";
                 outFile2.close();
             }
         }
         steppingAction->ResetCounters();
         G4int electronHolePairs = steppingAction->GetElectronHolePairs();
-        std::ofstream outFile3("electron_pair_in_diamond.txt", std::ios::app);
+        std::ofstream outFile3("electron_pair_in_Si.txt", std::ios::app);
         if(fEventCounter-1 !=0) {
             outFile3 << electronHolePairs << " " << fEventCounter - 1 << "\n";
         }

@@ -31,7 +31,7 @@ void G4STARTRunAction::EndOfRunAction(const G4Run* run) {
         for (const auto& pair : counts) {
             std::string name = pair.first;
             char filename[20];
-            std::sprintf(filename,"particle_in_W_%s.txt",name);
+            std::sprintf(filename,"particle_in_Si_%s.txt",name);
             std::ofstream outFile(filename, std::ios::app);
             outFile <<pair.second << "\n";
             outFile.close();

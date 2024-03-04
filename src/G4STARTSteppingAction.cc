@@ -25,30 +25,31 @@ void G4STARTSteppingAction::UserSteppingAction(const G4Step* step)
 {
     const G4Track* track = step->GetTrack();
     const G4ParticleDefinition* particle = track->GetParticleDefinition();
-        if(particle == G4Gamma::Definition()){
+        //if(particle == G4Gamma::Definition()){
         const G4VProcess* process = step->GetPostStepPoint()->GetProcessDefinedStep();
         if(process){
             G4ThreeVector  momentumDirection = track->GetMomentumDirection();
             G4double energy = track->GetKineticEnergy();
-            if(momentumDirection ==G4ThreeVector(0,0,1) || energy == 0*MeV) {}
+            if(energy == 0*MeV) {}
             else{
+                G4String particleName = particle->GetParticleName();
                 std::ofstream outFile("particle_info2.txt", std::ios::app);
-                outFile << "\n Energy: " << energy / MeV << "MeV";
+                outFile << "\n Energy of " <<particleName << "="<< energy / MeV << "MeV";
                 outFile << "\n Momentum Direction: " << momentumDirection << "\n";
                 outFile << "-----------------\n";
 
             }
         }
-    }
+   // }
 
-    if(track->GetParentID() > 0 && track->GetMaterial()->GetName() == "Diamond"){
+    if(track->GetParentID() > 0 ){
         G4String particleName = particle->GetParticleName();
         //secondaryParticleCounts[particleName]=0;
         secondaryParticleCounts[particleName]++;
     }
     if (track) {
         // Check if the particle is in the diamond detector
-        if (track->GetVolume()->GetLogicalVolume()->GetMaterial()->GetName() == "Diamond") {
+        if (track->GetVolume()->GetLogicalVolume()->GetMaterial()->GetName() == "G4_Si") {
             // Check if an ionization event occurred (e.g., an electron-hole pair is created)
             if (step->GetTotalEnergyDeposit() > 5.5*eV) {
                 // Increment the count for each electron-hole pair
