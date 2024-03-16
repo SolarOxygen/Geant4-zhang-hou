@@ -1,6 +1,7 @@
 //内置头文件
 #include "G4Tubs.hh"
 #include "G4Trd.hh"
+#include "G4PVReplica.hh"
 #include "G4UnionSolid.hh"
 #include "G4Box.hh"
 #include "G4Cons.hh"
@@ -260,7 +261,7 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
             );
 
             G4PVPlacement *phy_disk_box = new G4PVPlacement(0,                         //旋转
-                                                           G4ThreeVector(0, ky*25.75*mm, 560*mm*kz),      //坐标位置
+                                                           G4ThreeVector(0, ky*26.75*mm, 560*mm*kz),      //坐标位置
                                                            logic_disk_box,               //待摆放的逻辑体
                                                            "disk_box",                   //物理实体名称
                                                            logic_world,                         //母体
@@ -299,7 +300,7 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
                 );
 
                 G4PVPlacement *phy_disk_tub = new G4PVPlacement(0,                         //旋转
-                                                                G4ThreeVector(kx*6*mm, ky*11*mm, 560*mm*kz),      //坐标位置
+                                                                G4ThreeVector(kx*6*mm, ky*12*mm, 560*mm*kz),      //坐标位置
                                                                 logic_disk_tub,               //待摆放的逻辑体
                                                                 "disk_tub",                   //物理实体名称
                                                                 logic_world,                         //母体
@@ -312,6 +313,71 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
             auto visAttributes_disk1 = new G4VisAttributes(G4Colour(1.0,1.0,0));
             logic_disk_box->SetVisAttributes(visAttributes_disk1);
         }
+        //////////////////////////////////////////////////////////////////////////////////////////////////
+        for(int ky = 1; ky>=-1;ky-=2) {
+            G4Box *disk2_box = new G4Box("disk2_box",
+                                        12 * mm,
+                                        39 * mm / 2,
+                                        7.263 * mm / 2
+            );
+            G4LogicalVolume *logic_disk2_box = new G4LogicalVolume(disk2_box,                             //待填充的几何体
+                                                                  fSi,    //填充材料
+                                                                  "disk2_box"                                //逻辑体名称
+            );
+
+            G4PVPlacement *phy_disk2_box = new G4PVPlacement(0,                         //旋转
+                                                            G4ThreeVector(0, ky*31.5*mm, 640*mm*kz),      //坐标位置
+                                                            logic_disk2_box,               //待摆放的逻辑体
+                                                            "disk2_box",                   //物理实体名称
+                                                            logic_world,                         //母体
+                                                            false,                     //是否布尔运算
+                                                            1                          //编号
+            );
+            for(int kx = 1;kx>=-1;kx-=2)
+            {
+                G4double phi ;
+                if(kx==1)
+                {
+                    phi = 0.*deg;
+                }
+                else
+                {
+                    phi = 90.*deg;
+                }
+                if(ky==-1)
+                {
+                    phi+=90.*deg;
+                    if(kx==1)
+                    {
+                        phi+=180.*deg;
+                    }
+                }
+                G4Tubs* disk2_tub = new G4Tubs("disk2_tub",
+                                              0*mm,
+                                              39*mm,
+                                              7.263*mm/2,
+                                              phi,
+                                              90.*deg
+                );
+                G4LogicalVolume *logic_disk2_tub = new G4LogicalVolume(disk2_tub,                             //待填充的几何体
+                                                                      fSi,    //填充材料
+                                                                      "disk2_tub"                                //逻辑体名称
+                );
+
+                G4PVPlacement *phy_disk2_tub = new G4PVPlacement(0,                         //旋转
+                                                                G4ThreeVector(kx*12*mm, ky*12*mm, 640*mm*kz),      //坐标位置
+                                                                logic_disk2_tub,               //待摆放的逻辑体
+                                                                "disk2_tub",                   //物理实体名称
+                                                                logic_world,                         //母体
+                                                                false,                     //是否布尔运算
+                                                                1                          //编号
+                );
+                auto visAttributes_disk = new G4VisAttributes(G4Colour(1.0,1.0,0));
+                logic_disk2_tub->SetVisAttributes(visAttributes_disk);
+            }
+            auto visAttributes_disk1 = new G4VisAttributes(G4Colour(1.0,1.0,0));
+            logic_disk2_box->SetVisAttributes(visAttributes_disk1);
+        }
         auto visAttributes0 = new G4VisAttributes(G4Colour(0,1.0,0));
         logic_tub_two->SetVisAttributes(visAttributes0);
         auto visAttributes2 = new G4VisAttributes(G4Colour(1.0,0,0));
@@ -321,8 +387,132 @@ G4VPhysicalVolume* G4STARTDetectorConstruction::Construct() {
         G4VPrimitiveScorer* primitiv1 = new G4PSEnergyDeposit("edep");
         cryst->RegisterPrimitive(primitiv1);
         logic_tub_one->SetSensitiveDetector(cryst);
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    //LYSO 1st
+    // 单个探测器像素尺寸
+    G4double fTargetX = 1.5*mm;
+    G4double fTargetY = 3*mm;
+    G4double fTargetZ = 23*mm;
+    // 一个方向的探测器组合外围结构
+    G4double layerthick = 3.*mm;
+    G4double Array_Y = fTargetY;
+    G4double Array_Z = fTargetZ;
+    // 一个探测器像素
+    G4Box *solidTarget = new G4Box("Target", fTargetX/2., fTargetY/2., fTargetZ/2.);
+    G4LogicalVolume* fLogicTarget = new G4LogicalVolume(solidTarget, fSi, "Target");
 
-       /////////////////////////////////////////////////////////////////////////////////////////
+    G4int layers = 35;
+
+    for(int ky = 1;ky>=-1;ky-=2) {
+        for (int i = 0; i < 14; i++) {
+            G4double y = 12. * mm + 3 * mm * (i + 1);
+            layers = (G4int) 2 * ((sqrt(56. * mm * 56. * mm - y * y) / layerthick) - 1);
+            G4double Array_X = layers * layerthick;
+            G4Box *solidArray = new G4Box("Array", Array_X / 2., Array_Y / 2., Array_Z / 2.);
+            G4LogicalVolume *logicArray = new G4LogicalVolume(solidArray, fSi, "Array");
+            new G4PVPlacement(
+                    0,
+                    G4ThreeVector(0, ky*(13.5 * mm + 3 * mm * (i)), 658.5 * mm),
+                    logicArray,
+                    "Array",
+                    logic_world,
+                    false,
+                    1
+            );
+            new G4PVReplica(
+                    "Target",
+                    fLogicTarget,
+                    logicArray,
+                    kXAxis,
+                    layers, //貌似只能使用变量
+                    layerthick
+            );
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //LYSO 2nd
+    G4double LYSO_r = 10.*mm;
+    G4double LYSO_r_max = 5.*cm;
+    G4double thick = 5.*cm/10 ;
+    G4double width = 2.6183*mm;
+    G4double max_width = 3.9275*mm;
+    G4double length = (1100.*mm-900.*mm)/2;
+    G4double theta = 180.*deg/6;
+    G4int num = 6;
+
+    for(int kx = 1;kx>=-1;kx-=2)
+    {
+        for(int i =0; i <10;i++) {
+            theta = (width / (LYSO_r + i * thick)) * rad;
+            num = 1.571 * rad / theta;
+            G4Tubs *LYSO_mini = new G4Tubs("LYSO_mini",
+                                       LYSO_r + i * thick,
+                                       LYSO_r + (i + 1) * thick,
+                                       length,
+                                       kx*90. * deg,
+                                       theta
+            );
+            G4LogicalVolume *logic_LYSO_mini = new G4LogicalVolume(LYSO_mini, fSi, "LYSO_mini");
+            G4Tubs *LYSO_layer = new G4Tubs("LYSO_layer",
+                                        LYSO_r + i * thick,
+                                        LYSO_r + (i + 1) * thick,
+                                        length,
+                                        kx*90. * deg,
+                                        180. * deg
+            );
+            G4LogicalVolume *logic_LYSO_layer = new G4LogicalVolume(LYSO_layer, fSi, "LYSO_layer");
+            new G4PVPlacement(
+                0,
+                G4ThreeVector(-13.5 * mm * kx, 0, 900. * mm + length),
+                logic_LYSO_layer,
+                "LYSO",
+                logic_world,
+                false,
+                1
+            );
+            new G4PVReplica(
+                "LYSO",
+                logic_LYSO_mini,
+                logic_LYSO_layer,
+                kPhi,
+                num, //貌似只能使用变量
+                theta
+            );
+        }
+        G4int layer_x = 3,layer_y=10;
+        G4Box* LYSO_mini2 = new G4Box("LYSO_mini2",4.5*mm,2.5*mm,length);
+        G4LogicalVolume* logic_mini2 = new G4LogicalVolume(LYSO_mini2,fSi,"LYSO_mini2");
+        G4Box *LYSO_Array = new G4Box("LYSO_Array", 27.*mm/2, 5.*mm/2, length);
+        G4LogicalVolume *logic_LYSO_Array = new G4LogicalVolume(LYSO_Array, fSi, "LYSO_Array");
+        G4Box *LYSO_Box = new G4Box("LYSO_Box", 27.*mm/2, 5.*cm/2, length);
+        G4LogicalVolume *logic_LYSO_Box = new G4LogicalVolume(LYSO_Box, fSi, "LYSO_Box");
+        new G4PVPlacement(
+                0,
+                G4ThreeVector(0, kx*(10.*mm+2.5*cm), 900.*mm+length),
+                logic_LYSO_Box,
+                "LYSO_Box",
+                logic_world,
+                false,
+                1
+        );
+        new G4PVReplica(
+                "LYSO_Array",
+                logic_mini2,
+                logic_LYSO_Array,
+                kXAxis,
+                layer_x, //貌似只能使用变量
+                9.*mm
+        );
+        new G4PVReplica(
+                "LYSO_Box",
+                logic_LYSO_Array,
+                logic_LYSO_Box,
+                kYAxis,
+                layer_y, //貌似只能使用变量
+                5.*mm
+        );
+
     }
     G4SDManager::GetSDMpointer()->SetVerboseLevel(1);
 
